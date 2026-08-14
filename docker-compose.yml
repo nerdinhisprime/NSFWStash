@@ -1,22 +1,73 @@
 services:
-  maindatabase:
+  postgres:
     build:
       context: .
       dockerfile: Dockerfile.db
+    container_name: postgres
     restart: unless-stopped
-    container_name: maindatabase
+    networks:
+      - api
+    ports:
+      - "${DB_PORT}:5432"
     environment:
       POSTGRES_USER: ${DB_USR}
       POSTGRES_PASSWORD: ${DB_PSWD}
       POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "${DB_PORT}:5432"
     volumes:
-      - main_db_data:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
       - ./api/db:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USR} -d ${DB_NAME}"]
-      interval: 10s timeout: 5s retries: 2
+  nginx:
+    image: nginx:mainline-alpine
+    container_name: nginx
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - api
+      - web
+    ports:
+      - "80:80"
+    environment:
+      - NGINX_ENVSUBST_FILTER=VITE_API_HOST|VITE_API_PORT|IMG_PATH|VITE_WEB_PORT
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./nginx/conf.d/cors.conf:/etc/nginx/snippets/cors.conf:ro
+      # - ./web/dist:/usr/share/nginx/html:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    command: pnpm -F api dev
+    env_file:
+      - .env
+    networks:
+      - api
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/api/node_modules
+      - /app/web/node_modules
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    command: pnpm -F web dev
+    env_file:
+      - .env
+    networks:
+      - web
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/api/node_modules
+      - /app/web/node_modules
+networks:
+  api:
+  web:
 
 volumes:
-  main_db_data:
+  postgres:

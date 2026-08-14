@@ -3,12 +3,9 @@ import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, '../', 'API_')
+  const env = loadEnv(mode, '../', 'VITE_');
   return {
     plugins: [vue()],
-    define: {
-      __API_URL__: JSON.stringify(`http://${env.API_HOST}:${env.API_PORT}`)
-    },
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src'),
@@ -17,7 +14,11 @@ export default defineConfig(({ mode }) => {
         '@features': resolve(__dirname, 'src/features'),
         '@entities': resolve(__dirname, 'src/entities'),
         '@shared': resolve(__dirname, 'src/shared'),
-      }
+      },
     },
-  }
+    server: {
+      host: true,
+      port: Number(env.VITE_WEB_PORT) || 5173,
+    },
+  };
 });

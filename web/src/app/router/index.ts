@@ -6,21 +6,6 @@ const routes: Array<RouteRecordRaw> = [
     name: 'home',
     component: () => import('@/pages/main'),
   },
-  {
-    path: '/signup',
-    name: 'register',
-    component: () => import('@/pages/register'),
-  },
-  {
-    path: '/login',
-    name: 'login',
-    component: () => import('@/pages/login'),
-  },
-  {
-    path: '/profile',
-    name: 'profile',
-    component: () => import('@/pages/profile'),
-  },
 ];
 
 const router = createRouter({

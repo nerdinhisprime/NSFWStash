@@ -1,4 +1,3 @@
-import '@fastify/jwt';
 import '@fastify/postgres';
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 

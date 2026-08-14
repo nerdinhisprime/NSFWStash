@@ -6,7 +6,7 @@ defineProps<{ buttonText?: string }>();
 
 <template>
   <div class="dropdown">
-    <AppButton class="dropdown-btn">{{ buttonText || 'undefined' }}</AppButton>
+    <AppButton>{{ buttonText || 'undefined' }}</AppButton>
     <article>
       <section class="dropdown-menu">
         <slot />

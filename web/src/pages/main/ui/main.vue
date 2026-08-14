@@ -1,9 +1,7 @@
 <script setup lang="ts">
-  import { Navigation } from '@/widgets/navigation'
-  import { ImagesLenta } from '@/widgets/images-lenta';
+import { Grud } from '@/widgets/grud';
 </script>
 
 <template>
-  <Navigation />
-  <ImagesLenta />
+  <Grud />
 </template>
