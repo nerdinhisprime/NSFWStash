@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { GetUser } from '@/features/get-user';
+import { GetUserData } from '@/features/get-user-data';
 import { CreateUser } from '@/features/create-user';
 import { DeleteUser } from '@/features/delete-user';
 import { UpdateUserData } from '@/features/update-user-data';
 </script>
 
 <template>
-  <GetUser />
+  <GetUserData />
   <CreateUser />
   <DeleteUser />
   <UpdateUserData />

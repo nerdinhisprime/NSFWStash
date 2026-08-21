@@ -4,21 +4,35 @@ server {
   default_type application/octet-stream;
   sendfile on;
   tcp_nopush on;
-  client_max_body_size 512M;
+  client_max_body_size 512m;
+  client_body_temp_path ${IMG_PATH}/tmp;
+  create_full_put_path on;
 
   location / {
+    include snippets/websocket.conf;
     proxy_pass http://web:${VITE_WEB_PORT};
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "upgrade";
-    proxy_set_header Host $host;
   }
 
   location /api/ {
-    include snippets/cors.conf;
+    # include snippets/cors.conf;
     proxy_pass http://api:${VITE_API_PORT}/;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location /api/upload {
+    alias ${IMG_PATH};
+    auth_request /api/ping/auth_check;
+    dav_methods PUT;
+    dav_access user:rw group:rw all:rw;
+  }
+
+  location /api/ping/auth_check {
+    internal;
+    proxy_pass http://api:${VITE_API_PORT}/ping/auth_check;
+    proxy_method GET;
+    proxy_pass_request_body off;
+    proxy_set_header Content-Length "";
   }
 }
