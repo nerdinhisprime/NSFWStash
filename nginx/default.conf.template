@@ -21,11 +21,19 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
   }
 
-  location /api/upload {
-    alias ${IMG_PATH};
-    auth_request /api/ping/auth_check;
-    dav_methods PUT;
-    dav_access user:rw group:rw all:rw;
+  #location /api/upload {
+    #alias ${IMG_PATH};
+    #auth_request /api/ping/auth_check;
+    #dav_methods PUT;
+    #dav_access user:rw group:rw all:rw;
+  #}
+
+  location /api/static/ {
+    alias ${IMG_PATH}/;
+
+    expires 30d;
+    add_header Cache-Control "public, no-transform";
+    add_header Access-Control-Allow-Origin *;
   }
 
   location /api/ping/auth_check {
