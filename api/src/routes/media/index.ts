@@ -48,7 +48,7 @@ export default async function mediaRoute(app: FastifyInstance) {
       `SELECT id, file_path, mimetype, created_at FROM media ORDER BY created_at DESC;`,
     );
     const files = rows.map(
-      (i) =>
+      (i: { file_path: string }) =>
         `${process.env.VITE_API_HOSTNAME}/static/${path.basename(i.file_path)}`,
     );
     return reply.send({
@@ -60,12 +60,17 @@ export default async function mediaRoute(app: FastifyInstance) {
     const cursor = req.query.cursor ? Number(req.query.cursor) : null;
 
     const { rows } = await app.pg.query(
-      `SELECT file_path FROM media WHERE ($1::int IS NULL OR id < $1) ORDER BY id DESC LIMIT $2`,
+      `SELECT id, file_path FROM media WHERE ($1::int IS NULL OR id < $1) ORDER BY id DESC LIMIT $2`,
       [cursor, limit],
+    );
+    const filePath = rows.map(
+      (i: { file_path: string }) =>
+        `${process.env.VITE_API_HOSTNAME}/static/${path.basename(i.file_path)}`,
     );
     return {
       items: rows,
-      nextCursor: rows.length === limit ? rows.at(-1).id : null,
+      path: filePath,
+      nextCursor: rows.length === limit ? (rows.at(-1)?.id ?? null) : null,
     };
   });
 }
