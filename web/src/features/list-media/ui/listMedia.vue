@@ -3,22 +3,44 @@ import { ref } from 'vue';
 import { getMediaListImg } from '@/entities/media';
 import { ioFn } from '@/entities/lazy-load';
 
+interface MediaList {
+  id: number;
+  originalUrl: string;
+  previewUrl: string;
+}
+
 const targetEl = ref<HTMLElement | null>(null);
-const list = ref<string[]>([]);
+const list = ref<MediaList[]>([]);
 const cursor = ref<any>();
 
 const fn = async () => {
   const res = await getMediaListImg(cursor.value, 6);
+  if (!res) return;
 
-  if (res?.path) list.value = [...list.value, ...res.path];
+  if (res?.items) list.value = [...list.value, ...res.items];
   cursor.value = res.nextCursor;
+
+  return res.nextCursor != null;
 };
 ioFn(targetEl, fn);
 </script>
 
 <template>
   <div class="img-container">
-    <img v-for="(path, idx) in list" :key="idx" :src="path" class="img-item" />
+    <RouterLink
+      v-for="item in list"
+      :key="item.id"
+      :to="{
+        name: 'image-detail',
+        params: { id: item.id },
+        state: {
+          previewUrl: item.previewUrl,
+          originalUrl: item.originalUrl,
+        },
+      }"
+    >
+      <img :src="item.previewUrl" class="img-item" />
+    </RouterLink>
   </div>
   <div ref="targetEl"></div>
 </template>

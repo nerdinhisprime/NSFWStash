@@ -28,13 +28,14 @@ services:
     ports:
       - "80:80"
     environment:
-      - NGINX_ENVSUBST_FILTER=VITE_API_HOST|VITE_API_PORT|IMG_PATH|VITE_WEB_PORT
+      - NGINX_ENVSUBST_FILTER=VITE_API_HOST|VITE_API_PORT|VITE_WEB_PORT|IMG_PATH|PREVIEW_PATH
     volumes:
     - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
     - ./nginx/conf.d/cors.conf:/etc/nginx/snippets/cors.conf:ro
     - ./nginx/conf.d/websocket.conf:/etc/nginx/snippets/websocket.conf:ro
     - ./nginx/init-permissions.sh:/docker-entrypoint.d/30-permissions.sh:ro
     - ${IMG_PATH}:${IMG_PATH}
+    - ${PREVIEW_PATH}:${PREVIEW_PATH}
     extra_hosts:
       - "host.docker.internal:host-gateway"
   api:
@@ -53,6 +54,7 @@ services:
       - /app/api/node_modules
       - /app/web/node_modules
       - ${IMG_PATH}:${IMG_PATH}
+      - ${PREVIEW_PATH}:${PREVIEW_PATH}
   web:
     build:
       context: .

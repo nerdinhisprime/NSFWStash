@@ -21,15 +21,24 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
   }
 
-  #location /api/upload {
-    #alias ${IMG_PATH};
-    #auth_request /api/ping/auth_check;
-    #dav_methods PUT;
-    #dav_access user:rw group:rw all:rw;
-  #}
-
+  # замени /api/static/ на /media/original!!!
   location /api/static/ {
     alias ${IMG_PATH}/;
+
+    expires 30d;
+    add_header Cache-Control "public, no-transform";
+    add_header Access-Control-Allow-Origin *;
+  }
+  location /media/original/ {
+    alias ${IMG_PATH}/;
+
+    expires 30d;
+    add_header Cache-Control "public, no-transform";
+    add_header Access-Control-Allow-Origin *;
+  }
+
+  location /media/preview/ {
+    alias ${PREVIEW_PATH}/;
 
     expires 30d;
     add_header Cache-Control "public, no-transform";

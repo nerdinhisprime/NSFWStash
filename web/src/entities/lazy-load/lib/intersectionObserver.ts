@@ -2,30 +2,36 @@ import { onMounted, onUnmounted, nextTick, Ref, ref } from 'vue';
 
 export const ioFn = (
   targetEl: Ref<HTMLElement | null>,
-  fn: () => Promise<void> | void,
+  fn: () => Promise<boolean | void> | boolean | void,
   rootMargin = 200,
 ) => {
   const isLoad = ref(false);
+  const isDone = ref(false);
   let observer: IntersectionObserver;
 
-  // ручная проверка пересечения с учётом rootMargin
   const isStillIntersecting = () => {
     if (!targetEl.value) return false;
     const rect = targetEl.value.getBoundingClientRect();
-    return rect.top <= window.innerHeight + rootMargin && rect.bottom >= -rootMargin;
+    return (
+      rect.top <= window.innerHeight + rootMargin && rect.bottom >= -rootMargin
+    );
   };
 
   const handleIntersect = async () => {
-    if (isLoad.value) return;
+    if (isLoad.value || isDone.value) return;
     isLoad.value = true;
+    let shouldContinue: boolean | void = true;
     try {
-      await fn();
+      shouldContinue = await fn();
     } finally {
       isLoad.value = false;
     }
-    // ждём, пока Vue отрендерит новые элементы в DOM
+    if (shouldContinue === false) {
+      isDone.value = true;
+      observer?.disconnect();
+      return;
+    }
     await nextTick();
-    // если после подгрузки sentinel всё ещё в зоне видимости — грузим ещё
     if (isStillIntersecting()) {
       handleIntersect();
     }

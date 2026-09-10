@@ -9,3 +9,4 @@ export const API_HOST =
 //export const API_HOSTNAME = `http://${API_HOST}:${API_PORT}`;
 //export const API_HOSTNAME = './api';
 export const API_HOSTNAME = import.meta.env.VITE_API_HOSTNAME;
+export const MEDIA_HOSTNAME = import.meta.env.VITE_MEDIA_HOSTNAME;
